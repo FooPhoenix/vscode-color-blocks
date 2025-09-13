@@ -107,6 +107,9 @@ export class DecorationRangeHandler {
         if (comments.length === 0) return;
 
         for (const comment of comments) {
+            if (comment.startDelimiter === undefined || comment.content === undefined)
+                continue;
+
             // Extract arguments for this comment
             const match = colorBlockRegex.exec(comment.content);
 

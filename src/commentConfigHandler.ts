@@ -81,15 +81,17 @@ export class CommentConfigHandler {
 
         // Update regex
         const ccc = this.currentCommentConfig;
-        let regExString = '';
-        if (!!ccc?.lineComment)
-            regExString += String.raw`(${escapeRegex(ccc.lineComment)})(.*)`;
-        if (regExString) regExString += '|';
-        if (!!ccc?.blockComment)
-            regExString += String.raw`(${escapeRegex(ccc.blockComment[0])})([\S\s]*?)(${escapeRegex(ccc.blockComment[1])})`;
-        if (!regExString) return null;
+        const patterns: string[] = [];
 
-        this.regex = RegExp(regExString, "g");
+        if (ccc?.lineComment)
+            patterns.push(String.raw`(${escapeRegex(ccc.lineComment)})(.*)`);
+
+        if (ccc?.blockComment)
+            patterns.push(String.raw`(${escapeRegex(ccc.blockComment[0])})([\S\s]*?)(${escapeRegex(ccc.blockComment[1])})`);
+
+        if (!patterns.length) return null;
+
+        this.regex = RegExp(patterns.join('|'), "g");
     }
 
     /**
