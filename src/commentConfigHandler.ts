@@ -79,19 +79,24 @@ export class CommentConfigHandler {
 
         if (!this.currentCommentConfig) return;
 
+        // === Fix for Bash (shellscript) === {#110}
+        // In some languages a line comment is available, but the block comment is not.
+        // In such cases, the old regex was terminated with a trailing '|' and make the plugin to crash.
+        // Now the regex is build with `regExString.join('|')` to avoid the final '|'...
+        
         // Update regex
         const ccc = this.currentCommentConfig;
-        const patterns: string[] = [];
+        const regExString: string[] = [];
 
         if (ccc?.lineComment)
-            patterns.push(String.raw`(${escapeRegex(ccc.lineComment)})(.*)`);
+            regExString.push(String.raw`(${escapeRegex(ccc.lineComment)})(.*)`);
 
         if (ccc?.blockComment)
-            patterns.push(String.raw`(${escapeRegex(ccc.blockComment[0])})([\S\s]*?)(${escapeRegex(ccc.blockComment[1])})`);
+            regExString.push(String.raw`(${escapeRegex(ccc.blockComment[0])})([\S\s]*?)(${escapeRegex(ccc.blockComment[1])})`);
 
-        if (!patterns.length) return null;
+        if (!regExString.length) return null;
 
-        this.regex = RegExp(patterns.join('|'), "g");
+        this.regex = RegExp(regExString.join('|'), "g");
     }
 
     /**
